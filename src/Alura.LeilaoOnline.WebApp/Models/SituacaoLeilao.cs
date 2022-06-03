@@ -4,7 +4,6 @@
     {
         Rascunho,
         Pregao,
-        Finalizado,
-        Arquivado
+        Finalizado
     }
 }

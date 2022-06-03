@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Alura.LeilaoOnline.WebApp.Models;
 using Alura.LeilaoOnline.WebApp.Dados;
-using Alura.LeilaoOnline.WebApp.Services;
 
 namespace Alura.LeilaoOnline.WebApp.Controllers
 {
@@ -9,24 +9,27 @@ namespace Alura.LeilaoOnline.WebApp.Controllers
     [Route("/api/leiloes")]
     public class LeilaoApiController : ControllerBase
     {
-        private readonly IAdminService _service;
+        private readonly AppDbContext _context;
+        private readonly LeilaoDao _dao;
 
-        public LeilaoApiController(IAdminService service)
+        public LeilaoApiController()
         {
-            _service = service;
+            _context = new AppDbContext();
+            _dao = new LeilaoDao();
         }
 
         [HttpGet]
         public IActionResult EndpointGetLeiloes()
         {
-            var leiloes = _service.ConsultaLeiloes();
+            var leiloes = _dao.GetLeiloes();
+
             return Ok(leiloes);
         }
 
         [HttpGet("{id}")]
         public IActionResult EndpointGetLeilaoById(int id)
         {
-            var leilao = _service.ConsultaLeilaoPorId(id);
+            var leilao = _dao.GetLeilaoById(id);
 
             if (leilao == null)
             {
@@ -38,29 +41,32 @@ namespace Alura.LeilaoOnline.WebApp.Controllers
         [HttpPost]
         public IActionResult EndpointPostLeilao(Leilao leilao)
         {
-            _service.CadastraLeilao(leilao);
+            _dao.Insert(leilao);
+
             return Ok(leilao);
         }
 
         [HttpPut]
         public IActionResult EndpointPutLeilao(Leilao leilao)
         {
-            _service.ModificaLeilao(leilao);
+            _dao.Update(leilao);
             return Ok(leilao);
         }
 
         [HttpDelete("{id}")]
         public IActionResult EndpointDeleteLeilao(int id)
         {
-            var leilao = _service.ConsultaLeilaoPorId(id);
+            var leilao = _dao.GetLeilaoById(id);
 
             if (leilao == null)
             {
                 return NotFound();
             }
-            _service.RemoveLeilao(leilao);
+            _dao.Delete(leilao);
 
             return NoContent();
         }
+
+
     }
 }
